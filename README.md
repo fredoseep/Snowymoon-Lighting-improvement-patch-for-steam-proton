@@ -46,7 +46,3 @@ This skips `DiscardView` only when the view's vtable address is outside the load
 If the game stops responding while loading a save, leave it for 20–30 seconds and inspect successive `heartbeat` lines in `SnowymoonProbe.log`. Increasing `discard_calls` means the rendering thread is still making these calls; a fixed count with continuing heartbeats means only this worker thread is responding. Record whether Steam marks the process as running and send both `game.log.txt` and the fresh Proton log. The heartbeat's `uptime_ms` is the system uptime, not elapsed game time.
 
 To revert, remove `xinput1_4.dll` and `SnowymoonProbe.asi` from the game folder and remove `xinput1_4` from `WINEDLLOVERRIDES`. Keep your original `dxgi.dll` and `dinput8.dll`.
-
-## IDA / Wine debugger correlation
-
-For the matched September 29 DXVK binary, the PE timestamp is `6ab4f7b7` and image size is `0x669000`. It loaded at `0x6ffff7db0000`. The actual RVA (absolute address minus module base) is `0x4ff1e6`, while the game's crash report's `0001:004fe1e6` is section-relative and differs by `0x1000`. The caller's return address is RVA `0x126b4a`; the preceding call at RVA `0x126b45` invokes the C++ RTTI routine starting at RVA `0x4ff1a0`. The faulting instruction is `mov rax,[rsi]`, with `rsi=0x80750017473fec60`. Do not patch this instruction. With the matching 64-bit DXVK DLL loaded in IDA at PE image base `0x359050000`, press `G` and enter `0x35954f1e6`, or `0x359176b45` for the call site. These numbers only apply to this exact DXVK binary.
