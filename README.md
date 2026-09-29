@@ -27,11 +27,7 @@ Set Steam launch options to:
 
 ```text
 PROTON_LOG=1 WINEDLLOVERRIDES="dxgi,dinput8,xinput1_4=n,b" %command% -rdevice dx11
-```
 
-The supplied log shows this process loads `xinput1_4.dll` before DXVK's `d3d11.dll`. This is specific to the observed launch; confirm it again in the next Proton log. An ASI loader may also support `winhttp.dll`, but the observed game loads that later, so it could miss the device creation.
-
-Run until the crash. Send `bin/win_x64/SnowymoonProbe.log` and the top of `game.crash.txt`. A useful log has `Probe loaded`, `d3d11 base`, a successful `D3D11CreateDevice...`, `Context QI`, and the last `DiscardView` / `ClearView` records. If there is no `Probe loaded`, confirm the ASI loader was loaded as *native* in the Proton log. If there is no device creation record, the loader arrived too late or the game used another creation path. If the log ends in a view record, the last `view` and `vtable` addresses let us locate the exact object in a debugger.
 
 ## Experimental test after confirming the original crash
 
@@ -41,8 +37,3 @@ The September 29 crash and probe both identify `view=0x473fec50` as the first cr
 SNOWY_SKIP_EXTERNAL_DISCARD=1 PROTON_LOG=1 WINEDLLOVERRIDES="dxgi,dinput8,xinput1_4=n,b" %command% -rdevice dx11
 ```
 
-This skips `DiscardView` only when the view's vtable address is outside the loaded DXVK `d3d11.dll` image. The log will say `SKIP DiscardView`. It still forwards `ClearView` and all other operations. This is a diagnostic experiment, not a validated rendering fix. Check the actual 3D world and lighting for artifacts. If it crashes at `ClearView`, send the new probe and crash logs. Remove `SNOWY_SKIP_EXTERNAL_DISCARD=1` to disable the experiment without rebuilding.
-
-If the game stops responding while loading a save, leave it for 20–30 seconds and inspect successive `heartbeat` lines in `SnowymoonProbe.log`. Increasing `discard_calls` means the rendering thread is still making these calls; a fixed count with continuing heartbeats means only this worker thread is responding. Record whether Steam marks the process as running and send both `game.log.txt` and the fresh Proton log. The heartbeat's `uptime_ms` is the system uptime, not elapsed game time.
-
-To revert, remove `xinput1_4.dll` and `SnowymoonProbe.asi` from the game folder and remove `xinput1_4` from `WINEDLLOVERRIDES`. Keep your original `dxgi.dll` and `dinput8.dll`.
