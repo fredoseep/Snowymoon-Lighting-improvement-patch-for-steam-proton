@@ -1,5 +1,7 @@
 # ETS2 1.61 / Snowymoon / Proton diagnostic ASI
 
+**Testing on proton experimental**
+
 This is a logging probe with an optional experimental workaround. By default it identifies whether the game's D3D11 device context reaches `DiscardView` or `ClearView` shortly before the DXVK crash and forwards every intercepted call unchanged. This revision logs detailed view addresses only for the first 18 calls and then every 1000th call, avoiding file flushes on the rendering thread. A heartbeat reports call totals every five seconds.
 
 ## Build on Ubuntu
