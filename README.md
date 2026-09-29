@@ -26,14 +26,6 @@ Use a *64-bit* Ultimate ASI Loader distribution from its official GitHub release
 Set Steam launch options to:
 
 ```text
-PROTON_LOG=1 WINEDLLOVERRIDES="dxgi,dinput8,xinput1_4=n,b" %command% -rdevice dx11
-
-
-## Experimental test after confirming the original crash
-
-The September 29 crash and probe both identify `view=0x473fec50` as the first crashing `DiscardView` argument. Its vtable is outside the DXVK module, and the crash occurs during a C++ runtime type conversion. To test whether bypassing that discard hint lets rendering proceed, **rebuild and install this updated probe**, and set launch options to:
-
-```text
-SNOWY_SKIP_EXTERNAL_DISCARD=1 PROTON_LOG=1 WINEDLLOVERRIDES="dxgi,dinput8,xinput1_4=n,b" %command% -rdevice dx11
+DXVK_ASYNC=1 PROTON_NO_FSYNC=1 SNOWY_SKIP_EXTERNAL_DISCARD=1 PROTON_LOG=1 WINEDLLOVERRIDES="dxgi,dinput8,xinput1_4=n,b" %command% -rdevice dx11
 ```
 
